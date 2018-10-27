@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
     int x, d = 2, t = 1, mx, my, cy[300] = {1, 2}, cx[300] = {7,7};
     int velo = 100, velo2 = 5;
     char niv, tecla = 'a';
-    int opcao, pontos = 0, nivel = 1; // Niveis comecando do 1
+    int opcao, pontos = 0, nivel = 1; // Niveis começando do 1
 
     // Criação das bordas
     for(x=0; x < 18; x++)
@@ -40,6 +40,7 @@ int main(int argc, char* argv[]){
     }
 
     srand(time(NULL)); // Srand gera valores aleatorios
+    // Cordenadas x,y geradas aleatorio para aparecer a comida
     mx = (rand()% 49) + 1;
     my = (rand()% 17) + 1;
 
@@ -54,34 +55,42 @@ int main(int argc, char* argv[]){
                 cy[x] = cy[x - 1];
             }
 
-            if(d == 0)cx[0]--;
-            if(d == 1)cy[0]--;
-            if(d == 2)cx[0]++;
-            if(d == 3)cy[0]++;
+            if(d == 0)cx[0]--; // Move para a esquerda no eixo X
+            if(d == 1)cy[0]--; // Move para baixo no eixo Y
+            if(d == 2)cx[0]++; // Move para a direita no eixo X
+            if(d == 3)cy[0]++; // Move para cima no eixo Y
+
             gotoxy(cx[t], cy[t]);
             printf(" ");
             if(mx == cx[0] && my == cy[0]){
+                printf("\a"); // Som ao comer
                 t++;  // t = tamanho da cobra
                 pontos++;
                 mx = (rand()%25) + 1;
                 my = (rand()%17) + 1;
-                velo -= 5; //velocidade 5 eh a maxima
-                velo2 += 5; //vai da 2 e incrementa ate 5
+                velo -= 5; // velocidade 5 eh a maxima
+                velo2 += 5; // vai da 2 e incrementa ate 5
             }
+
             gotoxy(cx[0],cy[0]);
-            printf("%c", 254); // cursor que anda pela tela (cobrinha)
-            gotoxy(mx, my);    // Posição do bixinho que vai aparecer na tela (aleatorio)
-            printf("%c", 1);   // Bixinho que aparece pra cobra comer
-            gotoxy(55, 10);    // posicionamento x,y
+            printf("%c", 1); // cursor que anda pela tela (cobrinha)
+
+            gotoxy(mx, my);    // Posição do comida que vai aparecer na tela (aleatorio)
+            printf("%c", 1);   // Comida que aparece pra cobra comer
 
             // Informações do jogo pontos, nivel e velociade atual
-            printf("Pontos: %d", pontos);
+            gotoxy(55, 20);
+            printf("\n Criado por: \n");
+            printf(" Marcelo Lima e Luiz Eduardo\n");
             gotoxy(55, 5);
-            printf("Nivel: %d", nivel);
+            printf("Pontos: %d", pontos);
             gotoxy(55, 3);
+            printf("Nivel: %d", nivel);
+            gotoxy(55, 1);
             printf("Velocidade: %d", velo2);
-            gotoxy(3, 22);
 
+
+            // Velociadade da cobra
             Sleep(velo);
 
             for(x = 1; x < t; x++){
@@ -98,16 +107,26 @@ int main(int argc, char* argv[]){
         if(tecla == 'H')d = 1;
         if(tecla == 'M')d = 2;
         if(tecla == 'P')d = 3;
+
+        // Verifica se a cobra bateu na borda
         if(cy[0] == 0 || cy[0] == 18 || cx[0] == 0 || cx[0] == 26)tecla = 's';
 
     } // Final do while principal
 
-
+    // Limpa a tela
    system("cls");
-   system("pause");
 
-   printf("\n\n\t Voce perdeu\n"); // Exibir que perdeu
-   printf("\n\t Fez %d pontos", pontos); // Exibir pontuacao
+   // Game over
+   printf("\n\n\t       %c", 35);
+   printf("\t%c", 35);
+
+   printf("\n\n\t%c -_- Voce perdeu! -_- %c\n", 35, 35); // Exibir que perdeu
+   printf("\n\t    %c Fez %d pontos %c\n\n", 35, pontos, 35); // Exibir pontuacao
+
+   printf("\t       %c", 35);
+   printf("\t%c", 35);
+
+   printf("\n\n");
    getch();
   return 0;
 }
