@@ -6,9 +6,12 @@
 #include<time.h>
 #include<stdbool.h>
 #include<ctype.h>
+#include<string.h>
 
 // Enumeração
-enum{facil = 300, medio = 200, dificil = 100, God = 50, SAIR = 27, Jogando = 1};
+enum{facil = 200, medio = 180, dificil = 150, God = 130, SAIR = 27, Jogando = 1};
+enum{pontosf = 100, pontosm = 80, pontosd = 60, pontosg = 50};  // Pontos necessario para ganhar em cada dificuldade
+enum{vertical_e = 23, vertical_d = 23, horizontal_s = 73, horizontal_i = 74}; // Tamanho das bordas
 
 // Prototipos das funções
 void instrucoes_do_jogo(void);
@@ -17,34 +20,49 @@ void gotoxy(int x, int y);
 void CriarBorda(void);
 void Carregando(void);
 int Menu(int *velo);
+void venceu(void);
 
 // Usado para mudar a cor das coisas
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main(int argc, char* argv[]){
     srand(time(NULL)); // Usado para gerar valores aleatorios
+    const int VELO_MAX = 80; // Quanto menor o valor, maior a velocidade
     int x, d, tamanho, mx, my, velo;
     int velo2, opcao, pontos, nivel;
-    char tecla;
+    int auxpontos;
+    char tecla, dificuldade[10];
 
     while(Jogando){
 
-        // opcao 2 = instruções
-        opcao = Menu(&velo);
-        while(opcao == 2){
-            opcao = Menu(&velo);
-        }
-        // Opcao 3 = Sair
-        if(opcao == 3)break;
+        // Verifica se a opcao escolhida foi sair
+        if(Menu(&velo) == 2)break;
+        system("cls");
 
-        Carregando(); // Tela "carregando jogo"
+        // Tela "carregando jogo, aguarde"
+        Carregando();
 
         // Função pra criar borda
         CriarBorda();
 
+        // Salvando a dificuldade escolhida como string
+        if(velo == facil){
+            strcpy(dificuldade, "Facil");
+            auxpontos = pontosf;
+        }else if(velo == medio){
+            strcpy(dificuldade, "Medio");
+            auxpontos = pontosm;
+        }else if(velo == dificil){
+            strcpy(dificuldade, "Dificil");
+            auxpontos = pontosd;
+        }else if(velo ==  God){
+            strcpy(dificuldade, "God");
+            auxpontos = pontosg;
+        }
+
         // Coordenadas x,y geradas aleatorio para aparecer a comida
-        mx = (rand()% 69) + 1;
-        my = (rand()% 19) + 1;
+        mx = (rand()% horizontal_s - 1) + 1;
+        my = (rand()% vertical_e - 1) + 1;
 
         // Iniciando variaveis
         tecla = ' ';
@@ -57,7 +75,7 @@ int main(int argc, char* argv[]){
         d = 2; // Começa andando para a direita
 
         SetConsoleTextAttribute(hConsole, 5);
-        printf("\n ---------------------------- SNAKE GAME ------------------------------\n");
+        printf("\n ------------------------------ SNAKE GAME --------------------------------\n");
         SetConsoleTextAttribute(hConsole, 7);
 
         while(tecla != SAIR){  // 27 = ESC
@@ -79,18 +97,33 @@ int main(int argc, char* argv[]){
                 printf(" ");
                 if(mx == cx[0] && my == cy[0]){
                     printf("\a"); // Som ao comer
-                    tamanho++;  // t = tamanho da cobra
+                    tamanho++;  // tamanho da cobra
                     pontos++;
-                    mx = (rand()%69) + 1;
-                    my = (rand()%19) + 1;
-                    if(velo != 2){
-                        velo -= 2; // velocidade 5 eh a maxima
-                        velo2 += 1; // vai da 2 e incrementa ate 5
+                    mx = (rand()% horizontal_s - 2) + 1;
+                    my = (rand()% vertical_e - 2) + 1;
+                    if(velo > VELO_MAX){
+                        velo -= 5;
+                        velo2 += 1;
                     }
-                    if(velo2 % 5 == 0){
+                    if(pontos % 5 == 0){
                         nivel++;
                     }
                 }
+                // Verifica se ganhou
+                if(strcmp(dificuldade,"Facil") == 0 && pontos == pontosf){
+                    tecla = 27;
+                    venceu();
+                }else if(strcmp(dificuldade,"Medio") == 0 && pontos == pontosm){
+                    tecla = 27;
+                    venceu();
+                }else if(strcmp(dificuldade,"Dificil") == 0 && pontos == pontosd){
+                    tecla = 27;
+                    venceu();
+                }else if(strcmp(dificuldade,"God") == 0 && pontos == pontosg){
+                    tecla = 27;
+                    venceu();
+                }
+
                 gotoxy(cx[0],cy[0]);
                 printf("%c", 1);   // Cursor que anda pela tela (cobrinha)
 
@@ -99,16 +132,29 @@ int main(int argc, char* argv[]){
                 printf("%c", 1);   // Comida que aparece pra cobra comer
                 SetConsoleTextAttribute(hConsole, 7);
 
-                // Informações do jogo pontos, nivel e velocidade atual
-                gotoxy(55, 22);
-                printf("\n Criado por: \n");
+                // Informações do jogo pontos, nivel e velocidade atual etc.
+                gotoxy(55, 25);
+                printf("\n Desenvolvido por: \n");
                 printf(" Marcelo Lima e Luiz Eduardo\n");
-                gotoxy(75, 6);
+                gotoxy(horizontal_s + 5, 12);
+                SetConsoleTextAttribute(hConsole, 11);
+                printf("Consiga %d pontos para vencer o jogo!", auxpontos);
+                SetConsoleTextAttribute(hConsole, 7);
+                gotoxy(horizontal_s + 5, 9);
                 printf("Pontos: %d", pontos);
-                gotoxy(75, 4);
+                gotoxy(horizontal_s + 5, 7);
+                printf("Dificuldade: %s",dificuldade);
+                gotoxy(horizontal_s + 5, 5);
                 printf("Nivel: %d", nivel);
-                gotoxy(75, 2);
+                gotoxy(horizontal_s + 5, 2);
                 printf("Velocidade: %d", velo2);
+                if(velo <= VELO_MAX){
+                    gotoxy(horizontal_s + 5, 3);
+                    SetConsoleTextAttribute(hConsole, 12);
+                    printf("(Velocidade maxima atingida)");
+                    SetConsoleTextAttribute(hConsole, 7);
+                }
+                gotoxy(110, 29);
 
                 // Velociadade da cobra
                 Sleep(velo);
@@ -122,7 +168,7 @@ int main(int argc, char* argv[]){
                     }
                 }
                 // Verifica se a cobra bateu na borda
-                if(cy[0] == 0 || cy[0] == 20 || cx[0] == 0 || cx[0] == 70){
+                if(cy[0] == 0 || cy[0] == vertical_e || cx[0] == 0 || cx[0] == horizontal_s){
                     Game_over(pontos, nivel);
                     tecla = SAIR;
                 }
@@ -151,7 +197,7 @@ int Menu(int *velo){
   system("cls");
 
   printf("\n ---------- SNAKE GAME --------- \n");
-  printf("\n 1- Novo Jogo\n 2- Instrucoes\n 3- Sair\n ---> ");
+  printf("\n 1- Novo Jogo\n 2- Sair\n ---> ");
   scanf("%d", &opcao);
 
   if(opcao == 1){
@@ -165,18 +211,15 @@ int Menu(int *velo){
     dificuldade == 1 ? (*velo = facil) : (dificuldade == 2 ? (*velo = medio) : (dificuldade == 3 ? (*velo = dificil) : (*velo = God)));
 
     system("cls");
+    instrucoes_do_jogo(); // Mostra as instrucoes do jogo!
     return 0;
-  }else if(opcao == 2){
-    instrucoes_do_jogo();
-    return 2;
   }else{
     system("cls");
-    return opcao; // Retorna 3
+    return opcao; // Retorna 2
   }
 }
 void Game_over(int pontos, int nivel){
    Sleep(1000);
-   printf("\n\n\t BURRO!........\n\n");
 
    // Limpa a tela
    system("cls");
@@ -199,24 +242,24 @@ void CriarBorda(void){
     SetConsoleTextAttribute(hConsole, 2);
 
     // Criação das bordas
-    for(x=0; x < 20; x++)
+    for(x=0; x < vertical_e; x++)
 	{
 	    gotoxy(0,x); // Vertical esquerda
 	    printf("%c", 178);
     }
-    for(x=0; x < 70; x++)
+    for(x=0; x < horizontal_s; x++)
 	{
         gotoxy(x,0); // Horizontal superior
         printf("%c", 178);
     }
-    for(x=0; x < 20; x++)
+    for(x=0; x < vertical_d; x++)
 	{
-        gotoxy(70,x); // Vertical direita
+        gotoxy(horizontal_s,x); // Vertical direita
         printf("%c", 178);
     }
-    for(x=0; x < 71; x++)
+    for(x=0; x < horizontal_i; x++)
 	{
-        gotoxy(x,20); // Horizontal inferior
+        gotoxy(x,vertical_e); // Horizontal inferior
         printf("%c", 178);
     }
     SetConsoleTextAttribute(hConsole, 7);
@@ -232,10 +275,48 @@ void Carregando(void){
 }
 void instrucoes_do_jogo(void){
     system("cls");
-    printf("\n __________________________ Instrucoes __________________________\n\n");
+    printf("\n __________________________ Instrucoes do jogo __________________________\n\n");
     printf(" - Mover a cobra: Setas pra cima(W), baixo(S), direita(D) e esquerda(A)!\n");
     printf(" - Sair do jogo: Tecla Esc!\n");
     printf(" - Nao eh permitido encostar nas bordas!\n");
     printf(" - Nao eh permitido encostar na calda da cobra!\n");
+    printf(" - Objetivo:\n\t-> Facil %d pontos para vencer.\n", pontosf);
+    printf("\t-> Medio %d pontos para vencer.\n\t-> Dificil %d pontos para vencer.\n",pontosm, pontosd);
+    printf(" \t-> God %d pontos para vencer.\n", pontosg);
+    Sleep(1000);
     getch();
 }
+void venceu(void){
+    Sleep(3000);
+    system("cls");
+    SetConsoleTextAttribute(hConsole, 3);
+    printf("\n\n    PARABENS!!!\n Voce venceu o jogo!!\n\n");
+    SetConsoleTextAttribute(hConsole, 7);
+
+    SetConsoleTextAttribute(hConsole, 9);
+    printf("       ___________      \n");
+    printf("      '._==_==_=_.'     \n");
+    printf("      .-\\:      /-.    \n");
+    printf("     | (|:.     |) |    \n");
+    printf("      '-|:.     |-'     \n");
+    printf("        \\::.    /      \n");
+    printf("         '::. .'        \n");
+    printf("           ) (          \n");
+    printf("         _.' '._        \n");
+    printf("        '-------'       \n");
+    printf("    _________________ \n\n");
+    SetConsoleTextAttribute(hConsole, 7);
+
+    Sleep(2000);
+    getch();
+}
+
+
+
+
+
+
+
+
+
+
