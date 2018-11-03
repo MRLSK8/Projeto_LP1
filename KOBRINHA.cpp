@@ -9,8 +9,8 @@
 #include<string.h>
 
 // Enumeração
-enum{facil = 200, medio = 180, dificil = 150, God = 130, SAIR = 27, Jogando = 1};
-enum{pontosf = 100, pontosm = 80, pontosd = 60, pontosg = 50};  // Pontos necessario para ganhar em cada dificuldade
+enum{facil = 200, medio = 180, dificil = 150, God = 50, SAIR = 27, Jogando = 1};
+enum{pontosf = 90, pontosm = 70, pontosd = 50, pontosg = 30};  // Pontos necessario para ganhar em cada dificuldade
 enum{vertical_e = 23, vertical_d = 23, horizontal_s = 73, horizontal_i = 74}; // Tamanho das bordas
 
 // Prototipos das funções
@@ -27,7 +27,7 @@ HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main(int argc, char* argv[]){
     srand(time(NULL)); // Usado para gerar valores aleatorios
-    const int VELO_MAX = 80; // Quanto menor o valor, maior a velocidade
+    const int VELO_MAX = 40; // Quanto menor o valor, maior a velocidade
     int x, d, tamanho, mx, my, velo;
     int velo2, opcao, pontos, nivel;
     int auxpontos;
@@ -61,8 +61,8 @@ int main(int argc, char* argv[]){
         }
 
         // Coordenadas x,y geradas aleatorio para aparecer a comida
-        mx = (rand()% horizontal_s - 1) + 1;
-        my = (rand()% vertical_e - 1) + 1;
+        mx = (rand()% 71) + 1;
+        my = (rand()% 20) + 1;
 
         // Iniciando variaveis
         tecla = ' ';
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
         d = 2; // Começa andando para a direita
 
         SetConsoleTextAttribute(hConsole, 5);
-        printf("\n ------------------------------ SNAKE GAME --------------------------------\n");
+        printf("\n ------------------------------ SNAKE GAME -------------------------------\n");
         SetConsoleTextAttribute(hConsole, 7);
 
         while(tecla != SAIR){  // 27 = ESC
@@ -99,8 +99,8 @@ int main(int argc, char* argv[]){
                     printf("\a"); // Som ao comer
                     tamanho++;  // tamanho da cobra
                     pontos++;
-                    mx = (rand()% horizontal_s - 2) + 1;
-                    my = (rand()% vertical_e - 2) + 1;
+                    mx = (rand()% 71) + 1;
+                    my = (rand()% 20) + 1;
                     if(velo > VELO_MAX){
                         velo -= 5;
                         velo2 += 1;
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]){
                 }
 
                 gotoxy(cx[0],cy[0]);
-                printf("%c", 1);   // Cursor que anda pela tela (cobrinha)
+                printf("%c", 22);   // Cursor que anda pela tela (cobrinha)
 
                 gotoxy(mx, my);    // Posição do comida que vai aparecer na tela (aleatorio)
                 SetConsoleTextAttribute(hConsole, 12);
@@ -193,19 +193,135 @@ void gotoxy(int x, int y) // Funcao para o gotoxy saltar de posicao para um pont
   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), (COORD){x,y});// Mover o cursor
 }
 int Menu(int *velo){
-  int opcao, dificuldade;
+  int opcao = 1, dificuldade = 1;
+  char tecla = ' ';
   system("cls");
 
   printf("\n ---------- SNAKE GAME --------- \n");
-  printf("\n 1- Novo Jogo\n 2- Sair\n ---> ");
-  scanf("%d", &opcao);
+
+    gotoxy(2, 3);
+    SetConsoleTextAttribute(hConsole, 5);
+    printf("-> Novo Jogo ");
+    SetConsoleTextAttribute(hConsole, 7);
+    gotoxy(2, 5);
+    printf("-> Sair");
+    gotoxy(2, 3);
+
+    while(tecla != 13 && !(tecla = kbhit())){
+        tecla = getch();
+        tecla = toupper(tecla);
+
+        if(tecla != 13)tecla = getch();
+        tecla = toupper(tecla); // Transforma tecla digitada em maiusculo
+
+        if(tecla == 'H'){
+            gotoxy(2,3);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> Novo Jogo ");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2, 5);
+            printf("-> Sair");
+            gotoxy(2,3);
+            opcao = 1;
+        }
+        if(tecla == 'P'){
+            gotoxy(2, 3);
+            printf("-> Novo Jogo ");
+            gotoxy(2,5);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> Sair");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2,5);
+            opcao = 2;
+        }
+    }
 
   if(opcao == 1){
+    tecla = ' ';
     system("cls");
+
     printf("\n\n ---------- SNAKE GAME --------- \n");
-    printf("\n Escolha a dificuldade do jogo: ");
-    printf("\n 1- Facil\n 2- Medio\n 3- Dificil\n 4- God \n --> ");
-    scanf("%d", &dificuldade);
+    printf("\n \n Escolha a dificuldade do jogo: ");
+
+    gotoxy(2, 7);
+    SetConsoleTextAttribute(hConsole, 5);
+    printf("-> Facil ");
+    SetConsoleTextAttribute(hConsole, 7);
+    gotoxy(2, 9);
+    printf("-> Medio");
+    gotoxy(2, 11);
+    printf("-> Dificil");
+    gotoxy(2, 13);
+    printf("-> God ");
+    gotoxy(2, 7);
+
+    while(tecla != 13 && !(tecla = kbhit())){
+        tecla = getch();
+        tecla = toupper(tecla);
+
+        if(tecla != 13)tecla = getch();
+        tecla = toupper(tecla); // Transforma tecla digitada em maiusculo
+
+        if(tecla == 'H'){
+            if(dificuldade > 1){
+                dificuldade--;
+            }
+        }
+        if(tecla == 'P'){
+            if(dificuldade < 4){
+                dificuldade++;
+            }
+        }
+        if(dificuldade == 1){
+            gotoxy(2, 7);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> Facil ");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2, 9);
+            printf("-> Medio");
+            gotoxy(2, 11);
+            printf("-> Dificil");
+            gotoxy(2, 13);
+            printf("-> God ");
+            gotoxy(2, 7);
+        }else if(dificuldade == 2){
+            gotoxy(2, 7);
+            printf("-> Facil ");
+            gotoxy(2, 9);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> Medio");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2, 11);
+            printf("-> Dificil");
+            gotoxy(2, 13);
+            printf("-> God ");
+            gotoxy(2, 9);
+        }else if(dificuldade == 3){
+            gotoxy(2, 7);
+            printf("-> Facil ");
+            gotoxy(2, 9);
+            printf("-> Medio");
+            gotoxy(2, 11);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> Dificil");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2, 13);
+            printf("-> God ");
+            gotoxy(2, 11);
+        }else{
+            gotoxy(2, 7);
+            printf("-> Facil ");
+            gotoxy(2, 9);
+            printf("-> Medio");
+            gotoxy(2, 11);
+            printf("-> Dificil");
+            gotoxy(2, 13);
+            SetConsoleTextAttribute(hConsole, 5);
+            printf("-> God ");
+            SetConsoleTextAttribute(hConsole, 7);
+            gotoxy(2, 13);
+        }
+    }
 
     // Adicionando a velocidade de acordo com a dificuldade escolhida
     dificuldade == 1 ? (*velo = facil) : (dificuldade == 2 ? (*velo = medio) : (dificuldade == 3 ? (*velo = dificil) : (*velo = God)));
@@ -220,7 +336,6 @@ int Menu(int *velo){
 }
 void Game_over(int pontos, int nivel){
    Sleep(1000);
-
    // Limpa a tela
    system("cls");
 
