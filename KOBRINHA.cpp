@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
         system("cls");
 
         // Tela "carregando jogo, aguarde"
-        Carregando();
+        //Carregando();
 
         // Função pra criar borda
         CriarBorda();
@@ -74,15 +74,16 @@ int main(int argc, char* argv[]){
         int cx[300] = {7, 7};
         d = 2; // Começa andando para a direita
 
-        SetConsoleTextAttribute(hConsole, 5);
+        SetConsoleTextAttribute(hConsole, 5); // Usado pra mudar a cor das letras
         printf("\n ------------------------------ SNAKE GAME -------------------------------\n");
         SetConsoleTextAttribute(hConsole, 7);
 
-        while(tecla != SAIR){  // 27 = ESC
+        while(tecla != SAIR){ // SAIR = 27 = ESC
 
             // Função "kbhit()" retorna 0 se o usuário não está precionando nenhuma tecla.
             // Caso contrário, retorna um valor diferente de 0.
-            while(tecla != 27 && !(tecla = kbhit())){
+            while(tecla != SAIR && !(tecla = kbhit())){
+                // Faz a cobra se mover
                 for(x = tamanho; x > 0; x--){
                     cx[x] = cx[x - 1];
                     cy[x] = cy[x - 1];
@@ -94,7 +95,8 @@ int main(int argc, char* argv[]){
                 if(d == 3)cy[0]++; // Move para baixo no eixo Y
 
                 gotoxy(cx[tamanho], cy[tamanho]);
-                printf(" ");
+                printf(" "); // Limpa onde a cobra já passou
+
                 if(mx == cx[0] && my == cy[0]){
                     printf("\a"); // Som ao comer
                     tamanho++;  // tamanho da cobra
@@ -111,16 +113,16 @@ int main(int argc, char* argv[]){
                 }
                 // Verifica se ganhou
                 if(strcmp(dificuldade,"Facil") == 0 && pontos == pontosf){
-                    tecla = 27;
+                    tecla = SAIR;
                     venceu();
                 }else if(strcmp(dificuldade,"Medio") == 0 && pontos == pontosm){
-                    tecla = 27;
+                    tecla = SAIR;
                     venceu();
                 }else if(strcmp(dificuldade,"Dificil") == 0 && pontos == pontosd){
-                    tecla = 27;
+                    tecla = SAIR;
                     venceu();
                 }else if(strcmp(dificuldade,"God") == 0 && pontos == pontosg){
-                    tecla = 27;
+                    tecla = SAIR;
                     venceu();
                 }
 
@@ -154,7 +156,7 @@ int main(int argc, char* argv[]){
                     printf("(Velocidade maxima atingida)");
                     SetConsoleTextAttribute(hConsole, 7);
                 }
-                gotoxy(110, 29);
+                gotoxy(117, 29);
 
                 // Velociadade da cobra
                 Sleep(velo);
@@ -207,14 +209,14 @@ int Menu(int *velo){
     printf("-> Sair");
     gotoxy(2, 3);
 
-    while(tecla != 13 && !(tecla = kbhit())){
+    while(tecla != 13){
         tecla = getch();
         tecla = toupper(tecla);
 
-        if(tecla != 13)tecla = getch();
+        if(tecla != 13)tecla = getch(); // 13 = tecla enter
         tecla = toupper(tecla); // Transforma tecla digitada em maiusculo
 
-        if(tecla == 'H'){
+        if(tecla == 'H'){ // H = seta para cima
             gotoxy(2,3);
             SetConsoleTextAttribute(hConsole, 5);
             printf("-> Novo Jogo ");
@@ -224,7 +226,7 @@ int Menu(int *velo){
             gotoxy(2,3);
             opcao = 1;
         }
-        if(tecla == 'P'){
+        if(tecla == 'P'){ // P = seta para baixo
             gotoxy(2, 3);
             printf("-> Novo Jogo ");
             gotoxy(2,5);
@@ -255,7 +257,7 @@ int Menu(int *velo){
     printf("-> God ");
     gotoxy(2, 7);
 
-    while(tecla != 13 && !(tecla = kbhit())){
+    while(tecla != 13){
         tecla = getch();
         tecla = toupper(tecla);
 
@@ -335,6 +337,8 @@ int Menu(int *velo){
   }
 }
 void Game_over(int pontos, int nivel){
+   // Função sleep usada para aguarda um certo tempo,
+   // 1000 = 1 segundo, 2000 = 2 segundo etc.
    Sleep(1000);
    // Limpa a tela
    system("cls");
@@ -349,7 +353,6 @@ void Game_over(int pontos, int nivel){
 
    printf("\n\n");
    Sleep(4000);
-   getch();
 }
 void CriarBorda(void){
     int x;
@@ -423,7 +426,6 @@ void venceu(void){
     SetConsoleTextAttribute(hConsole, 7);
 
     Sleep(2000);
-    getch();
 }
 
 
